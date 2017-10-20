@@ -2,6 +2,10 @@ language: node_js
 node_js:
   - "6"
   - "8"
+  - "node"
+matrix:
+  allow_failures:
+    - env: TRAVIS_NODE_VERSION=node
 services:
   - postgresql
 before_script:
