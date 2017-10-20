@@ -8,7 +8,7 @@ Robust helpers for [pg](https://www.npmjs.com/package/pg).
 
 Using pg's in-built `pool`:
 
-```
+```js
 const pool = new pg.Pool({
   connectionString  : 'postgres://pgx@localhost/pgx',
 })
@@ -35,7 +35,7 @@ pgx.all(pool, selAll, (err, rows) => {
 You can also pass a `pg.client` instead of a `pg.pool` to any method, since the only method we use is `.query()` and
 both `pg.pool` and `pg.client` provide it.
 
-```
+```js
 const pool = new pg.Pool({
   connectionString  : 'postgres://pgx@localhost/pgx',
 })
@@ -54,6 +54,14 @@ pool.connect((err, client, done) => {
   })
 })
 ```
+
+## API ##
+
+* `.one()` - get one row from a table (or null if it doesn't exist)
+* `.all()` - get all rows from a table (or `[]` if nothing matches)
+* `.ins()` - inserts a row
+* `.upd()` - updates a row (using primary/unique key)
+* `.del()` - deletes a row (using primary/unique key)
 
 ## Author ##
 

@@ -16,6 +16,7 @@ const pool = new pg.Pool({
 })
 
 // --------------------------------------------------------------------------------------------------------------------
+// pool
 
 test('test one()', (t) => {
   t.plan(2)
@@ -38,6 +39,79 @@ test('test all()', (t) => {
     t.end()
   })
 })
+
+test('test ins()', (t) => {
+  t.plan(1)
+
+  const obj = {
+    key : 'name',
+    val : 'Vic',
+  }
+  pgx.ins(pool, 'kv', { key : 'name', val : 'Vic' }, (err) => {
+    t.ok(!err, 'no error')
+    t.end()
+  })
+})
+
+test('test all(), now one row', (t) => {
+  t.plan(2)
+
+  pgx.all(pool, 'SELECT * FROM kv', (err, rows) => {
+    t.ok(!err, 'no error')
+    t.deepEqual(rows, [{ key : 'name', val : 'Vic' }], 'One row!')
+
+    t.end()
+  })
+})
+
+test('test upd()', (t) => {
+  t.plan(1)
+
+  const obj = {
+    val : 'Bob',
+  }
+  pgx.upd(pool, 'kv', 'key', 'name', obj, (err) => {
+    t.ok(!err, 'no error')
+    t.end()
+  })
+})
+
+test('test all(), still one row', (t) => {
+  t.plan(2)
+
+  pgx.all(pool, 'SELECT * FROM kv', (err, rows) => {
+    t.ok(!err, 'no error')
+    t.deepEqual(rows, [{ key : 'name', val : 'Bob' }], 'One row!')
+
+    t.end()
+  })
+})
+
+test('test del()', (t) => {
+  t.plan(1)
+
+  const obj = {
+    val : 'Bob',
+  }
+  pgx.del(pool, 'kv', 'key', 'name', (err) => {
+    t.ok(!err, 'no error')
+    t.end()
+  })
+})
+
+test('test all(), zero rows again', (t) => {
+  t.plan(2)
+
+  pgx.all(pool, 'SELECT * FROM kv', (err, rows) => {
+    t.ok(!err, 'no error')
+    t.deepEqual(rows, [], 'No rows')
+
+    t.end()
+  })
+})
+
+// --------------------------------------------------------------------------------------------------------------------
+// client
 
 test('test using a client', (t) => {
   t.plan(3)
