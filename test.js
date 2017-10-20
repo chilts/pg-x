@@ -39,4 +39,21 @@ test('test all()', (t) => {
   })
 })
 
+test('test using a client', (t) => {
+  t.plan(3)
+
+  pool.connect((err, client, done) => {
+    t.ok(!err, 'no error when connecting')
+
+    pgx.one(client, 'SELECT 1 AS a', (err, row) => {
+      done()
+      t.ok(!err, 'no error when calling .one()')
+      t.deepEqual(row, { a : 1 }, 'Row was returned okay')
+
+      t.end()
+    })
+  })
+})
+
+
 // --------------------------------------------------------------------------------------------------------------------

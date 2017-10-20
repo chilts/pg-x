@@ -16,15 +16,42 @@ const pool = new pg.Pool({
 // one
 const selCount = 'SELECT count(*) AS count FROM tablename'
 pgx.one(pool, selCount, (err, row) => {
+  if (err) throw err
+
   console.log(`There are ${row.count} rows`)
 })
 
 // all
 const selAll = 'SELECT * FROM tablename'
 pgx.all(pool, selAll, (err, rows) => {
-  // if there is no error, rows is always [] or [ ... ]
+  if (err) throw err
+
+// if there is no error, rows is always [] or [ ... ]
   // (and never `null` or `undefined`).
   console.log(rows)
+})
+```
+
+You can also pass a `pg.client` instead of a `pg.pool` to any method, since the only method we use is `.query()` and
+both `pg.pool` and `pg.client` provide it.
+
+```
+const pool = new pg.Pool({
+  connectionString  : 'postgres://pgx@localhost/pgx',
+})
+
+// callback - checkout a client
+pool.connect((err, client, done) => {
+  if (err) throw err
+
+  // one
+  const selCount = 'SELECT count(*) AS count FROM tablename'
+  pgx.one(pool, selCount, (err, row) => {
+    done()
+    if (err) throw err
+
+    console.log(`There are ${row.count} rows`)
+  })
 })
 ```
 
