@@ -7,7 +7,7 @@ services:
   - postgresql
 before_script:
   - psql -U postgres -c 'CREATE DATABASE pgx;'
-  - psql -U postgres -c 'CREATE TABLE kv (key TEXT NOT NULL PRIMARY KEY, val TEXT NOT NULL);'
+  - psql -U postgres -d pgx -c 'CREATE TABLE kv (key TEXT NOT NULL PRIMARY KEY, val TEXT NOT NULL);'
 addons:
   postgresql: "9.4"
 env:
