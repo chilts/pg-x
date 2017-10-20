@@ -11,7 +11,7 @@ const pgx = require('.')
 // setup
 
 const pool = new pg.Pool({
-  connectionString  : 'postgres://pgx@localhost/pgx',
+  connectionString  : process.env.DATABASE_URL || 'postgres://pgx@localhost/pgx',
   idleTimeoutMillis : 1000,
 })
 

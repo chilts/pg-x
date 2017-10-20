@@ -1,0 +1,12 @@
+language: node_js
+node_js:
+  - "6"
+  - "8"
+services:
+  - postgresql
+before_script:
+  - psql -c 'CREATE DATABASE pgx;' -U postgres
+addons:
+  postgresql: "9.4"
+env:
+  - DATABASE_URL="postgres://postgres@localhost/pgx"
