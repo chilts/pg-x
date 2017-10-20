@@ -1,6 +1,6 @@
 {
   "name": "pg-x",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Robust helpers for 'pg'",
   "main": "index.js",
   "devDependencies": {
