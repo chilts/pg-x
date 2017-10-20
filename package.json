@@ -1,0 +1,30 @@
+{
+  "name": "pg-x",
+  "version": "0.1.0",
+  "description": "Robust helpers for 'pg'",
+  "main": "index.js",
+  "devDependencies": {
+    "pg": "^7.3.0",
+    "tape": "^4.8.0"
+  },
+  "scripts": {
+    "test": "tape test.js"
+  },
+  "homepage": "https://github.com/chilts/pg-x#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chilts/pg-x.git"
+  },
+  "bugs": {
+    "url": "https://github.com/chilts/pg-x/issues"
+  },
+  "author": "Andrew Chilton",
+  "keywords": [
+    "pg",
+    "postgres",
+    "postgresql",
+    "database",
+    "sql"
+  ],
+  "license": "ISC"
+}
