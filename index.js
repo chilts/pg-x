@@ -1,16 +1,9 @@
 // --------------------------------------------------------------------------------------------------------------------
 
-function getOne(poolOrClient, query, callback) {
+function one(poolOrClient, query, callback) {
   if ( !poolOrClient ) {
-    throw new Error('pg-x.getOne() - first arg must be pg.pool or pg.client')
+    throw new Error('pg-x.one() - first arg must be pg.pool or pg.client')
   }
-
-  // change the query from text to an object
-  // if ( typeof query === 'string' ) {
-  //   query = {
-  //     text : query,
-  //   }
-  // }
 
   poolOrClient.query(query, (err, res) => {
     if (err) return callback(err)
@@ -29,10 +22,28 @@ function getOne(poolOrClient, query, callback) {
   })
 }
 
+function all(poolOrClient, query, callback) {
+  if ( !poolOrClient ) {
+    throw new Error('pg-x.all() - first arg must be pg.pool or pg.client')
+  }
+
+  poolOrClient.query(query, (err, res) => {
+    if (err) return callback(err)
+
+    // if nothing there
+    if ( res.rows.length === 0 ) {
+      return callback(null, [])
+    }
+
+    callback(null, res.rows)
+  })
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 
 module.exports = {
-  getOne,
+  one,
+  all,
 }
 
 // --------------------------------------------------------------------------------------------------------------------
