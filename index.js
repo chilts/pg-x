@@ -39,6 +39,20 @@ function all(poolOrClient, query, callback) {
   })
 }
 
+function get(poolOrClient, tablename, col, val, callback) {
+  if ( !poolOrClient ) {
+    throw new Error('pg-x.get() - first arg must be pg.pool or pg.client')
+  }
+
+  // get this row only
+  const sql = `SELECT * FROM ${ tablename } WHERE ${ col } = $1`
+  const query = {
+    text   : sql,
+    values : [ val ],
+  }
+  one(poolOrClient, query, callback)
+}
+
 function ins(poolOrClient, tablename, obj, callback) {
   if ( !poolOrClient ) {
     throw new Error('pg-x.ins() - first arg must be pg.pool or pg.client')
@@ -88,6 +102,7 @@ function del(poolOrClient, tablename, col, val, callback) {
 module.exports = {
   one,
   all,
+  get,
   ins,
   upd,
   del,

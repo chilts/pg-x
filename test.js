@@ -64,6 +64,28 @@ test('test all(), now one row', (t) => {
   })
 })
 
+test('test get()', (t) => {
+  t.plan(2)
+
+  pgx.get(pool, 'kv', 'key', 'name', (err, row) => {
+    t.ok(!err, 'no error')
+    t.deepEqual(row, { key : 'name', val : 'Vic' }, 'Row was returned okay')
+
+    t.end()
+  })
+})
+
+test('test get() - missing', (t) => {
+  t.plan(2)
+
+  pgx.get(pool, 'kv', 'key', 'does-not-exist', (err, row) => {
+    t.ok(!err, 'no error')
+    t.deepEqual(row, null, 'Row returned as null')
+
+    t.end()
+  })
+})
+
 test('test upd()', (t) => {
   t.plan(1)
 
