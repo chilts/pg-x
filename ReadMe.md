@@ -57,11 +57,31 @@ pool.connect((err, client, done) => {
 
 ## API ##
 
-* `.one()` - get one row from a table (or null if it doesn't exist)
-* `.all()` - get all rows from a table (or `[]` if nothing matches)
-* `.ins()` - inserts a row
-* `.upd()` - updates a row (using primary/unique key)
-* `.del()` - deletes a row (using primary/unique key)
+Note: `poc` means "pool or client" which is either a `pg.pool` or a `pg.client`.
+
+### .one(poc, query, callback) ###
+
+Get one row from a table (or null if it doesn't exist).
+
+### `.all(poc, query, callback)` ###
+
+Get all rows from a table (or `[]` if nothing matches).
+
+### `.get(poc, table, col, val, callback)` ###
+
+Gets one row from the table specified, or null if it doesn't exist.
+
+### `.ins(poc, table, obj, callback)` ###
+
+Inserts a row into the table, using the key/value pairs in the obj.
+
+### `.upd(poc, tablename, col, val, obj, callback)` ###
+
+Updates one or more rows using the col/val pairs in `obj` and using `WHERE col = val`.
+
+### `.del(poc, tablename, col, val, callback)` ###
+
+Deletes one or more rows using the col/val pairs in `obj` and using `WHERE col = val`.
 
 ## Author ##
 
