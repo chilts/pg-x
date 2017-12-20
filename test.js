@@ -19,7 +19,7 @@ const pool = new pg.Pool({
 // pool
 
 test('test exec() - DELETE ALL', (t) => {
-  t.plan(3)
+  t.plan(2)
 
   // See : https://node-postgres.com/features/queries#query-config-object
   const query = 'DELETE FROM kv'
@@ -192,6 +192,26 @@ test('test using a client', (t) => {
 
       t.end()
     })
+  })
+})
+
+// --------------------------------------------------------------------------------------------------------------------
+// errors
+
+test('error exec() - DELETE', (t) => {
+  t.plan(5)
+
+  // See : https://node-postgres.com/features/queries#query-config-object
+  const query = "DELETE FROM nonexistent"
+  pgx.exec(pool, query, (err, rows, result) => {
+    t.ok(Boolean(err), 'got an error')
+    t.equal(err.severity, 'ERROR', 'got an expected severity')
+    t.equal(err.code, '42P01', 'got an expected error')
+
+    t.ok(!rows, 'No rows returned, not even an empty array')
+    t.ok(!result, 'No result returned')
+
+    t.end()
   })
 })
 
