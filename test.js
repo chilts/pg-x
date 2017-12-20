@@ -18,6 +18,50 @@ const pool = new pg.Pool({
 // --------------------------------------------------------------------------------------------------------------------
 // pool
 
+test('test exec() - DELETE ALL', (t) => {
+  t.plan(3)
+
+  // See : https://node-postgres.com/features/queries#query-config-object
+  const query = 'DELETE FROM kv'
+  pgx.exec(pool, query, (err, rows, result) => {
+    t.ok(!err, 'no error')
+    t.deepEqual(rows, [], 'No rows')
+
+    t.end()
+  })
+})
+
+test('test exec() - INSERT', (t) => {
+  t.plan(3)
+
+  // See : https://node-postgres.com/features/queries#query-config-object
+  const query = {
+    text   : 'INSERT INTO kv(key, val) VALUES($1, $2)',
+    values : [ 'x', '2' ],
+  }
+  pgx.exec(pool, query, (err, rows, result) => {
+    t.ok(!err, 'no error')
+    t.deepEqual(rows, [], 'No rows')
+    t.equal(result.rowCount, 1, 'One row was affected')
+
+    t.end()
+  })
+})
+
+test('test exec() - DELETE', (t) => {
+  t.plan(3)
+
+  // See : https://node-postgres.com/features/queries#query-config-object
+  const query = "DELETE FROM kv WHERE key = 'x'"
+  pgx.exec(pool, query, (err, rows, result) => {
+    t.ok(!err, 'no error')
+    t.deepEqual(rows, [], 'No rows')
+    t.equal(result.rowCount, 1, 'One row was affected')
+
+    t.end()
+  })
+})
+
 test('test one()', (t) => {
   t.plan(2)
 

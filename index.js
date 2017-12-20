@@ -1,5 +1,16 @@
 // --------------------------------------------------------------------------------------------------------------------
 
+function exec(poolOrClient, query, callback) {
+  if ( !poolOrClient ) {
+    throw new Error('pg-x.exec() - first arg must be pg.pool or pg.client')
+  }
+
+  poolOrClient.query(query, (err, result) => {
+    if (err) return callback(err)
+    callback(err, result.rows, result)
+  })
+}
+
 function one(poolOrClient, query, callback) {
   if ( !poolOrClient ) {
     throw new Error('pg-x.one() - first arg must be pg.pool or pg.client')
@@ -100,6 +111,7 @@ function del(poolOrClient, tablename, col, val, callback) {
 // --------------------------------------------------------------------------------------------------------------------
 
 module.exports = {
+  exec,
   one,
   all,
   get,

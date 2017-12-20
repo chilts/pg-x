@@ -10,7 +10,19 @@ Using pg's in-built `pool`:
 
 ```js
 const pool = new pg.Pool({
-  connectionString  : 'postgres://pgx@localhost/pgx',
+  connectionString : 'postgres://pgx@localhost/pgx',
+})
+
+// exec
+const insBlah = 'INSERT INTO blah(name) VALUES($1)
+const query = {
+  text : insBlah,
+  values : [ 'John Doe' ],
+}
+pgx.exec(pool, query, (err, rows, result) => {
+  if (err) throw err
+
+  console.log(`${result.rowCount} rows were affected`)
 })
 
 // one
@@ -37,7 +49,7 @@ both `pg.pool` and `pg.client` provide it.
 
 ```js
 const pool = new pg.Pool({
-  connectionString  : 'postgres://pgx@localhost/pgx',
+  connectionString : 'postgres://pgx@localhost/pgx',
 })
 
 // callback - checkout a client
