@@ -14,7 +14,7 @@ const pool = new pg.Pool({
 })
 
 // exec
-const insBlah = 'INSERT INTO blah(name) VALUES($1)
+const insBlah = 'INSERT INTO blah(name) VALUES($1)'
 const query = {
   text : insBlah,
   values : [ 'John Doe' ],
