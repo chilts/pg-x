@@ -1,6 +1,11 @@
 // --------------------------------------------------------------------------------------------------------------------
 
-function exec(poolOrClient, query, callback) {
+function exec(poolOrClient, q, callback) {
+  console.warn('pgx.exec() is deprecated, use pgx.query() instead.')
+  query(poolOrClient, q, callback)
+}
+
+function query(poolOrClient, query, callback) {
   if ( !poolOrClient ) {
     throw new Error('pg-x.exec() - first arg must be pg.pool or pg.client')
   }
@@ -112,6 +117,7 @@ function del(poolOrClient, tablename, col, val, callback) {
 
 module.exports = {
   exec,
+  query,
   one,
   all,
   get,

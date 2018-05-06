@@ -16,14 +16,14 @@ const pool = new pg.Pool({
 })
 
 // --------------------------------------------------------------------------------------------------------------------
-// pool
+// tests
 
-test('test exec() - DELETE ALL', (t) => {
+test('test query() - DELETE ALL', (t) => {
   t.plan(2)
 
   // See : https://node-postgres.com/features/queries#query-config-object
   const query = 'DELETE FROM kv'
-  pgx.exec(pool, query, (err, rows, result) => {
+  pgx.query(pool, query, (err, rows, result) => {
     t.ok(!err, 'no error')
     t.deepEqual(rows, [], 'No rows')
 
@@ -31,7 +31,7 @@ test('test exec() - DELETE ALL', (t) => {
   })
 })
 
-test('test exec() - INSERT', (t) => {
+test('test query() - INSERT', (t) => {
   t.plan(3)
 
   // See : https://node-postgres.com/features/queries#query-config-object
@@ -39,7 +39,7 @@ test('test exec() - INSERT', (t) => {
     text   : 'INSERT INTO kv(key, val) VALUES($1, $2)',
     values : [ 'x', '2' ],
   }
-  pgx.exec(pool, query, (err, rows, result) => {
+  pgx.query(pool, query, (err, rows, result) => {
     t.ok(!err, 'no error')
     t.deepEqual(rows, [], 'No rows')
     t.equal(result.rowCount, 1, 'One row was affected')
@@ -48,12 +48,12 @@ test('test exec() - INSERT', (t) => {
   })
 })
 
-test('test exec() - DELETE', (t) => {
+test('test query() - DELETE', (t) => {
   t.plan(3)
 
   // See : https://node-postgres.com/features/queries#query-config-object
   const query = "DELETE FROM kv WHERE key = 'x'"
-  pgx.exec(pool, query, (err, rows, result) => {
+  pgx.query(pool, query, (err, rows, result) => {
     t.ok(!err, 'no error')
     t.deepEqual(rows, [], 'No rows')
     t.equal(result.rowCount, 1, 'One row was affected')
@@ -68,6 +68,17 @@ test('test one()', (t) => {
   pgx.one(pool, 'SELECT 1 AS a', (err, row) => {
     t.ok(!err, 'no error')
     t.deepEqual(row, { a : 1 }, 'Row was returned okay')
+
+    t.end()
+  })
+})
+
+test('test one count()', (t) => {
+  t.plan(2)
+
+  pgx.one(pool, 'SELECT count(*) AS count FROM kv', (err, row) => {
+    t.ok(!err, 'no error')
+    t.deepEqual(row, { count : '0' }, 'Row was returned okay')
 
     t.end()
   })
@@ -103,6 +114,36 @@ test('test all(), now one row', (t) => {
   pgx.all(pool, 'SELECT * FROM kv', (err, rows) => {
     t.ok(!err, 'no error')
     t.deepEqual(rows, [{ key : 'name', val : 'Vic' }], 'One row!')
+
+    t.end()
+  })
+})
+
+test('test one() for a specific row using query params', (t) => {
+  t.plan(2)
+
+  const query = {
+    text : 'SELECT * FROM kv WHERE key = $1',
+    values : [ 'name' ],
+  }
+  pgx.one(pool, query, (err, row) => {
+    t.ok(!err, 'no error')
+    t.deepEqual(row, { key : 'name', val : 'Vic' }, 'Got the row back')
+
+    t.end()
+  })
+})
+
+test('test one() for a non-existing row using query params', (t) => {
+  t.plan(2)
+
+  const query = {
+    text : 'SELECT * FROM kv WHERE key = $1',
+    values : [ 'does not exist' ],
+  }
+  pgx.one(pool, query, (err, row) => {
+    t.ok(!err, 'no error')
+    t.ok(!row, 'No row for this name')
 
     t.end()
   })
@@ -198,12 +239,12 @@ test('test using a client', (t) => {
 // --------------------------------------------------------------------------------------------------------------------
 // errors
 
-test('error exec() - DELETE', (t) => {
+test('error query() - DELETE', (t) => {
   t.plan(5)
 
   // See : https://node-postgres.com/features/queries#query-config-object
   const query = "DELETE FROM nonexistent"
-  pgx.exec(pool, query, (err, rows, result) => {
+  pgx.query(pool, query, (err, rows, result) => {
     t.ok(Boolean(err), 'got an error')
     t.equal(err.severity, 'ERROR', 'got an expected severity')
     t.equal(err.code, '42P01', 'got an expected error')
