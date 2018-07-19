@@ -7,7 +7,7 @@ function exec(poolOrClient, q, callback) {
 
 function query(poolOrClient, query, callback) {
   if ( !poolOrClient ) {
-    throw new Error('pg-x.exec() - first arg must be pg.pool or pg.client')
+    throw new Error('pg-x.query() - first arg must be pg.pool or pg.client')
   }
 
   poolOrClient.query(query, (err, result) => {
@@ -81,7 +81,7 @@ function ins(poolOrClient, tablename, obj, callback) {
     text   : sql,
     values : keys.map(key => obj[key]),
   }
-  exec(poolOrClient, query, callback)
+  query(poolOrClient, query, callback)
 }
 
 function upd(poolOrClient, tablename, col, val, obj, callback) {
@@ -96,7 +96,7 @@ function upd(poolOrClient, tablename, col, val, obj, callback) {
     text   : sql,
     values : keys.map(key => obj[key]).concat(val),
   }
-  exec(poolOrClient, query, callback)
+  query(poolOrClient, query, callback)
 }
 
 function del(poolOrClient, tablename, col, val, callback) {
@@ -110,7 +110,7 @@ function del(poolOrClient, tablename, col, val, callback) {
     text   : sql,
     values : [ val ],
   }
-  exec(poolOrClient, query, callback)
+  query(poolOrClient, query, callback)
 }
 
 // --------------------------------------------------------------------------------------------------------------------
