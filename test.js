@@ -102,7 +102,7 @@ test('test ins()', (t) => {
     key : 'name',
     val : 'Vic',
   }
-  pgx.ins(pool, 'kv', { key : 'name', val : 'Vic' }, (err) => {
+  pgx.ins(pool, 'kv', obj, (err) => {
     t.ok(!err, 'no error')
     t.end()
   })
@@ -171,6 +171,30 @@ test('test get() - missing', (t) => {
   })
 })
 
+test('test another ins()', (t) => {
+  t.plan(1)
+
+  const obj = {
+    key : 'name2',
+    val : 'Bob',
+  }
+  pgx.ins(pool, 'kv', obj, (err) => {
+    t.ok(!err, 'no error')
+    t.end()
+  })
+})
+
+test('test all(), now two rows', (t) => {
+  t.plan(2)
+
+  pgx.all(pool, 'SELECT * FROM kv ORDER BY key', (err, rows) => {
+    t.ok(!err, 'no error')
+    t.deepEqual(rows, [{ key : 'name', val : 'Vic' }, { key : 'name2', val : 'Bob' }], 'Two rows!')
+
+    t.end()
+  })
+})
+
 test('test upd()', (t) => {
   t.plan(1)
 
@@ -183,12 +207,47 @@ test('test upd()', (t) => {
   })
 })
 
-test('test all(), still one row', (t) => {
+test('test all(), now two rows', (t) => {
   t.plan(2)
 
-  pgx.all(pool, 'SELECT * FROM kv', (err, rows) => {
+  pgx.all(pool, 'SELECT * FROM kv ORDER BY key', (err, rows) => {
     t.ok(!err, 'no error')
-    t.deepEqual(rows, [{ key : 'name', val : 'Bob' }], 'One row!')
+    t.deepEqual(rows, [{ key : 'name', val : 'Bob' }, { key : 'name2', val : 'Bob' }], 'Two rows!')
+
+    t.end()
+  })
+})
+
+test('test sel(), got both rows', (t) => {
+  t.plan(2)
+
+  pgx.sel(pool, 'kv', 'val', 'Bob', (err, rows) => {
+    t.ok(!err, 'no error')
+    rows.sort((a, b) => a.key > b.key)
+    t.deepEqual(rows, [{ key : 'name', val : 'Bob' }, { key : 'name2', val : 'Bob' }], 'Two rows!')
+
+    t.end()
+  })
+})
+
+test('test upd()', (t) => {
+  t.plan(1)
+
+  const obj = {
+    val : 'Jane',
+  }
+  pgx.upd(pool, 'kv', 'key', 'name', obj, (err) => {
+    t.ok(!err, 'no error')
+    t.end()
+  })
+})
+
+test('test sel() again, got just one row now', (t) => {
+  t.plan(2)
+
+  pgx.sel(pool, 'kv', 'val', 'Bob', (err, rows) => {
+    t.ok(!err, 'no error')
+    t.deepEqual(rows, [{ key : 'name2', val : 'Bob' }], 'Row name2/Bob')
 
     t.end()
   })
@@ -197,10 +256,16 @@ test('test all(), still one row', (t) => {
 test('test del()', (t) => {
   t.plan(1)
 
-  const obj = {
-    val : 'Bob',
-  }
   pgx.del(pool, 'kv', 'key', 'name', (err) => {
+    t.ok(!err, 'no error')
+    t.end()
+  })
+})
+
+test('test del() again', (t) => {
+  t.plan(1)
+
+  pgx.del(pool, 'kv', 'key', 'name2', (err) => {
     t.ok(!err, 'no error')
     t.end()
   })

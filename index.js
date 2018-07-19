@@ -55,6 +55,20 @@ function all(poolOrClient, q, callback) {
   })
 }
 
+function sel(poolOrClient, tablename, col, val, callback) {
+  if ( !poolOrClient ) {
+    throw new Error('pg-x.sel() - first arg must be pg.pool or pg.client')
+  }
+
+  // get this row only
+  const sql = `SELECT * FROM ${ tablename } WHERE ${ col } = $1`
+  const q = {
+    text   : sql,
+    values : [ val ],
+  }
+  all(poolOrClient, q, callback)
+}
+
 function get(poolOrClient, tablename, col, val, callback) {
   if ( !poolOrClient ) {
     throw new Error('pg-x.get() - first arg must be pg.pool or pg.client')
@@ -120,6 +134,7 @@ module.exports = {
   query,
   one,
   all,
+  sel,
   get,
   ins,
   upd,
