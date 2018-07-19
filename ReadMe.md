@@ -34,7 +34,7 @@ pool.connect((err, client, done) => {
     done()
     if (err) throw err
 
-    console.log(`There are ${row.count} rows`)
+    console.log(Row:', row || 'none')
   })
 })
 ```
@@ -77,7 +77,24 @@ Example:
 const selCount = 'SELECT count(*) AS count FROM tablename'
 pgx.one(pool, selCount, (err, row) => {
   if (err) throw err
-  console.log(`There are ${row.count} rows`)
+  console.log(Found row:', row || 'none')
+})
+```
+
+### `.sel(poc, table, col, val, callback)` ###
+
+Get all matching rows from a table where col = val (or `[]` if nothing matches).
+
+Example:
+
+```js
+// sel
+pgx.sel(pool, 'blog', 'account_id', 23, (err, rows) => {
+  if (err) throw err
+
+  // `rows` is always an array - but empty if there are no matching rows
+  // It is never `null` or `undefined` unless there was an `err`.
+  console.log(`There are ${rows.length} rows`)
 })
 ```
 
@@ -95,6 +112,7 @@ pgx.all(pool, selAll, (err, rows) => {
 
   // `rows` is always an array - but empty if there are no matching rows
   // It is never `null` or `undefined` unless there was an `err`.
+  console.log(`There are ${rows.length} rows`)
   console.log(rows)
 })
 ```
