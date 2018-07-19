@@ -1,10 +1,5 @@
 // --------------------------------------------------------------------------------------------------------------------
 
-function exec(poolOrClient, q, callback) {
-  console.warn('pgx.exec() is deprecated, use pgx.query() instead.')
-  query(poolOrClient, q, callback)
-}
-
 function query(poolOrClient, query, callback) {
   if ( !poolOrClient ) {
     throw new Error('pg-x.query() - first arg must be pg.pool or pg.client')
@@ -16,12 +11,17 @@ function query(poolOrClient, query, callback) {
   })
 }
 
-function one(poolOrClient, query, callback) {
+function exec(poolOrClient, q, callback) {
+  console.warn('pgx.exec() is deprecated, use pgx.query() instead.')
+  query(poolOrClient, q, callback)
+}
+
+function one(poolOrClient, q, callback) {
   if ( !poolOrClient ) {
     throw new Error('pg-x.one() - first arg must be pg.pool or pg.client')
   }
 
-  poolOrClient.query(query, (err, result) => {
+  poolOrClient.query(q, (err, result) => {
     if (err) return callback(err)
 
     // if nothing there
@@ -31,19 +31,19 @@ function one(poolOrClient, query, callback) {
 
     // if we have more than one row, give a warning but return the first anyway
     if ( result.rows.length > 1 ) {
-      console.warn("Query returned more than one row but expected only one : " + query.text)
+      console.warn("Query returned more than one row but expected only one : " + q.text)
     }
 
     callback(null, result.rows[0], result)
   })
 }
 
-function all(poolOrClient, query, callback) {
+function all(poolOrClient, q, callback) {
   if ( !poolOrClient ) {
     throw new Error('pg-x.all() - first arg must be pg.pool or pg.client')
   }
 
-  poolOrClient.query(query, (err, result) => {
+  poolOrClient.query(q, (err, result) => {
     if (err) return callback(err)
 
     // if nothing there
@@ -62,11 +62,11 @@ function get(poolOrClient, tablename, col, val, callback) {
 
   // get this row only
   const sql = `SELECT * FROM ${ tablename } WHERE ${ col } = $1`
-  const query = {
+  const q = {
     text   : sql,
     values : [ val ],
   }
-  one(poolOrClient, query, callback)
+  one(poolOrClient, q, callback)
 }
 
 function ins(poolOrClient, tablename, obj, callback) {
@@ -77,11 +77,11 @@ function ins(poolOrClient, tablename, obj, callback) {
   // insert this row into this table
   const keys = Object.keys(obj)
   const sql = `INSERT INTO ${ tablename }(${ keys.join(', ') }) VALUES(${ keys.map((key, i) => '$' + (i+1)).join(', ') })`
-  const query = {
+  const q = {
     text   : sql,
     values : keys.map(key => obj[key]),
   }
-  query(poolOrClient, query, callback)
+  query(poolOrClient, q, callback)
 }
 
 function upd(poolOrClient, tablename, col, val, obj, callback) {
@@ -92,11 +92,11 @@ function upd(poolOrClient, tablename, col, val, obj, callback) {
   // update this row
   const keys = Object.keys(obj)
   const sql = `UPDATE ${ tablename } SET ${ keys.map((key, i) => `${key} = $${i+1}`) } WHERE ${ col } = $${ keys.length + 1}`
-  const query = {
+  const q = {
     text   : sql,
     values : keys.map(key => obj[key]).concat(val),
   }
-  query(poolOrClient, query, callback)
+  query(poolOrClient, q, callback)
 }
 
 function del(poolOrClient, tablename, col, val, callback) {
@@ -106,11 +106,11 @@ function del(poolOrClient, tablename, col, val, callback) {
 
   // delete this row
   const sql = `DELETE FROM ${ tablename } WHERE ${ col } = $1`
-  const query = {
+  const q = {
     text   : sql,
     values : [ val ],
   }
-  query(poolOrClient, query, callback)
+  query(poolOrClient, q, callback)
 }
 
 // --------------------------------------------------------------------------------------------------------------------
