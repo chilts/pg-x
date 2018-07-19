@@ -68,7 +68,7 @@ pgx.query(pool, query, (err, rows, result) => {
 
 ### .one(poc, query, callback) ###
 
-Get one row from a table (or null if it doesn't exist).
+Get one row from the results (or null if there are no rows returned).
 
 Example:
 
