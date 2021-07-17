@@ -1,19 +1,29 @@
-// --------------------------------------------------------------------------------------------------------------------
+// general
 
 function query(poolOrClient, query, callback) {
   if ( !poolOrClient ) {
     throw new Error('pg-x.query() - first arg must be pg.pool or pg.client')
   }
 
+  if (!callback) {
+    return poolOrClient.query(query)
+      .then(result => {
+        return Promise.resolve({ rows: result.rows, result })
+      })
+  }
+
   poolOrClient.query(query, (err, result) => {
-    if (err) return callback(err)
+    if (err) {
+      callback(err)
+      return
+    }
     callback(err, result.rows, result)
   })
 }
 
-function exec(poolOrClient, q, callback) {
+function exec(poolOrClient, query, callback) {
   console.warn('pgx.exec() is deprecated, use pgx.query() instead.')
-  query(poolOrClient, q, callback)
+  return query(poolOrClient, query, callback)
 }
 
 function one(poolOrClient, q, callback) {
@@ -21,11 +31,24 @@ function one(poolOrClient, q, callback) {
     throw new Error('pg-x.one() - first arg must be pg.pool or pg.client')
   }
 
-  poolOrClient.query(q, (err, result) => {
+  if (!callback) {
+    return query(poolOrClient, q)
+      .then(({ rows, result }) => {
+        if ( rows.length === 0 ) {
+          return Promise.resolve({ row: null, result })
+        }
+        if ( rows.length > 1 ) {
+          console.warn("Query returned more than one row but expected only one : " + q.text)
+        }
+        return Promise.resolve({ row: rows[0], result })
+      })
+  }
+
+  query(poolOrClient, q, (err, rows, result) => {
     if (err) return callback(err)
 
     // if nothing there
-    if ( result.rows.length === 0 ) {
+    if ( rows.length === 0 ) {
       return callback(null, null, result)
     }
 
@@ -43,14 +66,12 @@ function all(poolOrClient, q, callback) {
     throw new Error('pg-x.all() - first arg must be pg.pool or pg.client')
   }
 
+  if (!callback) {
+    return query(poolOrClient, q)
+  }
+
   poolOrClient.query(q, (err, result) => {
     if (err) return callback(err)
-
-    // if nothing there
-    if ( result.rows.length === 0 ) {
-      return callback(null, [])
-    }
-
     callback(null, result.rows, result)
   })
 }
@@ -66,7 +87,7 @@ function sel(poolOrClient, tablename, col, val, callback) {
     text   : sql,
     values : [ val ],
   }
-  all(poolOrClient, q, callback)
+  return all(poolOrClient, q, callback)
 }
 
 function get(poolOrClient, tablename, col, val, callback) {
@@ -80,7 +101,7 @@ function get(poolOrClient, tablename, col, val, callback) {
     text   : sql,
     values : [ val ],
   }
-  one(poolOrClient, q, callback)
+  return one(poolOrClient, q, callback)
 }
 
 function ins(poolOrClient, tablename, obj, callback) {
@@ -95,7 +116,7 @@ function ins(poolOrClient, tablename, obj, callback) {
     text   : sql,
     values : keys.map(key => obj[key]),
   }
-  query(poolOrClient, q, callback)
+  return query(poolOrClient, q, callback)
 }
 
 function upd(poolOrClient, tablename, col, val, obj, callback) {
@@ -110,7 +131,7 @@ function upd(poolOrClient, tablename, col, val, obj, callback) {
     text   : sql,
     values : keys.map(key => obj[key]).concat(val),
   }
-  query(poolOrClient, q, callback)
+  return query(poolOrClient, q, callback)
 }
 
 function del(poolOrClient, tablename, col, val, callback) {
@@ -124,11 +145,10 @@ function del(poolOrClient, tablename, col, val, callback) {
     text   : sql,
     values : [ val ],
   }
-  query(poolOrClient, q, callback)
+  return query(poolOrClient, q, callback)
 }
 
-// --------------------------------------------------------------------------------------------------------------------
-
+// exports
 module.exports = {
   exec,
   query,
@@ -140,5 +160,3 @@ module.exports = {
   upd,
   del,
 }
-
-// --------------------------------------------------------------------------------------------------------------------

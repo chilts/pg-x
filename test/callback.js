@@ -5,7 +5,8 @@ const pg = require('pg')
 const test = require('tape')
 
 // local
-const pgx = require('.')
+const util = require('./util.js')
+const pgx = require('..')
 
 // --------------------------------------------------------------------------------------------------------------------
 // setup
@@ -18,7 +19,7 @@ const pool = new pg.Pool({
 // --------------------------------------------------------------------------------------------------------------------
 // tests
 
-test('test query() - DELETE ALL', (t) => {
+test('callback - test query() - DELETE ALL', (t) => {
   t.plan(2)
 
   // See : https://node-postgres.com/features/queries#query-config-object
@@ -31,7 +32,7 @@ test('test query() - DELETE ALL', (t) => {
   })
 })
 
-test('test query() - INSERT', (t) => {
+test('callback - test query() - INSERT', (t) => {
   t.plan(3)
 
   // See : https://node-postgres.com/features/queries#query-config-object
@@ -48,7 +49,7 @@ test('test query() - INSERT', (t) => {
   })
 })
 
-test('test query() - DELETE', (t) => {
+test('callback - test query() - DELETE', (t) => {
   t.plan(3)
 
   // See : https://node-postgres.com/features/queries#query-config-object
@@ -62,7 +63,7 @@ test('test query() - DELETE', (t) => {
   })
 })
 
-test('test one()', (t) => {
+test('callback - test one()', (t) => {
   t.plan(2)
 
   pgx.one(pool, 'SELECT 1 AS a', (err, row) => {
@@ -73,7 +74,7 @@ test('test one()', (t) => {
   })
 })
 
-test('test one count()', (t) => {
+test('callback - test one count()', (t) => {
   t.plan(2)
 
   pgx.one(pool, 'SELECT count(*) AS count FROM kv', (err, row) => {
@@ -84,7 +85,7 @@ test('test one count()', (t) => {
   })
 })
 
-test('test all()', (t) => {
+test('callback - test all()', (t) => {
   t.plan(2)
 
   pgx.all(pool, 'SELECT * FROM kv', (err, rows) => {
@@ -95,7 +96,7 @@ test('test all()', (t) => {
   })
 })
 
-test('test ins()', (t) => {
+test('callback - test ins()', (t) => {
   t.plan(1)
 
   const obj = {
@@ -108,7 +109,7 @@ test('test ins()', (t) => {
   })
 })
 
-test('test all(), now one row', (t) => {
+test('callback - test all(), now one row', (t) => {
   t.plan(2)
 
   pgx.all(pool, 'SELECT * FROM kv', (err, rows) => {
@@ -119,7 +120,7 @@ test('test all(), now one row', (t) => {
   })
 })
 
-test('test one() for a specific row using query params', (t) => {
+test('callback - test one() for a specific row using query params', (t) => {
   t.plan(2)
 
   const query = {
@@ -134,7 +135,7 @@ test('test one() for a specific row using query params', (t) => {
   })
 })
 
-test('test one() for a non-existing row using query params', (t) => {
+test('callback - test one() for a non-existing row using query params', (t) => {
   t.plan(2)
 
   const query = {
@@ -149,7 +150,7 @@ test('test one() for a non-existing row using query params', (t) => {
   })
 })
 
-test('test get()', (t) => {
+test('callback - test get()', (t) => {
   t.plan(2)
 
   pgx.get(pool, 'kv', 'key', 'name', (err, row) => {
@@ -160,7 +161,7 @@ test('test get()', (t) => {
   })
 })
 
-test('test get() - missing', (t) => {
+test('callback - test get() - missing', (t) => {
   t.plan(2)
 
   pgx.get(pool, 'kv', 'key', 'does-not-exist', (err, row) => {
@@ -171,7 +172,7 @@ test('test get() - missing', (t) => {
   })
 })
 
-test('test another ins()', (t) => {
+test('callback - test another ins()', (t) => {
   t.plan(1)
 
   const obj = {
@@ -184,18 +185,19 @@ test('test another ins()', (t) => {
   })
 })
 
-test('test all(), now two rows', (t) => {
+test('callback - test all(), now two rows', (t) => {
   t.plan(2)
 
   pgx.all(pool, 'SELECT * FROM kv ORDER BY key', (err, rows) => {
     t.ok(!err, 'no error')
+    rows.sort(util.sortBy('key'))
     t.deepEqual(rows, [{ key : 'name', val : 'Vic' }, { key : 'name2', val : 'Bob' }], 'Two rows!')
 
     t.end()
   })
 })
 
-test('test upd()', (t) => {
+test('callback - test upd()', (t) => {
   t.plan(1)
 
   const obj = {
@@ -207,30 +209,31 @@ test('test upd()', (t) => {
   })
 })
 
-test('test all(), now two rows', (t) => {
+test('callback - test all(), now two rows', (t) => {
   t.plan(2)
 
   pgx.all(pool, 'SELECT * FROM kv ORDER BY key', (err, rows) => {
     t.ok(!err, 'no error')
+    rows.sort(util.sortBy('key'))
     t.deepEqual(rows, [{ key : 'name', val : 'Bob' }, { key : 'name2', val : 'Bob' }], 'Two rows!')
 
     t.end()
   })
 })
 
-test('test sel(), got both rows', (t) => {
+test('callback - test sel(), got both rows', (t) => {
   t.plan(2)
 
   pgx.sel(pool, 'kv', 'val', 'Bob', (err, rows) => {
     t.ok(!err, 'no error')
-    rows.sort((a, b) => a.key > b.key)
+    rows.sort(util.sortBy('key'))
     t.deepEqual(rows, [{ key : 'name', val : 'Bob' }, { key : 'name2', val : 'Bob' }], 'Two rows!')
 
     t.end()
   })
 })
 
-test('test upd()', (t) => {
+test('callback - test upd()', (t) => {
   t.plan(1)
 
   const obj = {
@@ -242,7 +245,7 @@ test('test upd()', (t) => {
   })
 })
 
-test('test sel() again, got just one row now', (t) => {
+test('callback - test sel() again, got just one row now', (t) => {
   t.plan(2)
 
   pgx.sel(pool, 'kv', 'val', 'Bob', (err, rows) => {
@@ -253,7 +256,7 @@ test('test sel() again, got just one row now', (t) => {
   })
 })
 
-test('test del()', (t) => {
+test('callback - test del()', (t) => {
   t.plan(1)
 
   pgx.del(pool, 'kv', 'key', 'name', (err) => {
@@ -262,7 +265,7 @@ test('test del()', (t) => {
   })
 })
 
-test('test del() again', (t) => {
+test('callback - test del() again', (t) => {
   t.plan(1)
 
   pgx.del(pool, 'kv', 'key', 'name2', (err) => {
@@ -271,7 +274,7 @@ test('test del() again', (t) => {
   })
 })
 
-test('test all(), zero rows again', (t) => {
+test('callback - test all(), zero rows again', (t) => {
   t.plan(2)
 
   pgx.all(pool, 'SELECT * FROM kv', (err, rows) => {
@@ -285,7 +288,7 @@ test('test all(), zero rows again', (t) => {
 // --------------------------------------------------------------------------------------------------------------------
 // client
 
-test('test using a client', (t) => {
+test('callback - test using a client', (t) => {
   t.plan(3)
 
   pool.connect((err, client, done) => {
@@ -304,7 +307,7 @@ test('test using a client', (t) => {
 // --------------------------------------------------------------------------------------------------------------------
 // errors
 
-test('error query() - DELETE', (t) => {
+test('callback - error query() - DELETE', (t) => {
   t.plan(5)
 
   // See : https://node-postgres.com/features/queries#query-config-object
@@ -320,6 +323,5 @@ test('error query() - DELETE', (t) => {
     t.end()
   })
 })
-
 
 // --------------------------------------------------------------------------------------------------------------------

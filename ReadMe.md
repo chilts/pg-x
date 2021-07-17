@@ -37,6 +37,19 @@ pool.connect((err, client, done) => {
     console.log(Row:', row || 'none')
   })
 })
+
+// promise - checkout a client
+pool.connect()
+  .then((client, done) => {
+    const selCount = 'SELECT count(*) AS count FROM tablename'
+    return pgx.one(pool, selCount)
+  })
+  .catch(err => {
+    throw err
+  })
+  .finally(done)
+;
+
 ```
 
 ## API ##

@@ -4,11 +4,13 @@
   "description": "Robust helpers for 'pg'",
   "main": "index.js",
   "devDependencies": {
-    "pg": "^7.3.0",
+    "pg": "^8.6.0",
     "tape": "^4.8.0"
   },
   "scripts": {
-    "test": "tape test.js"
+    "test": "tape test/callback.js test/promise.js",
+    "test-callback": "tape test/callback.js",
+    "test-promise": "tape test/promise.js"
   },
   "homepage": "https://github.com/chilts/pg-x#readme",
   "repository": {
@@ -26,5 +28,9 @@
     "database",
     "sql"
   ],
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "pg-x": "^0.10.0",
+    "pgtrans": "^1.1.0"
+  }
 }
