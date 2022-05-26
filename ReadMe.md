@@ -14,15 +14,34 @@ const pool = new pg.Pool({
 })
 ```
 
-Then see each example below for each operation.
+Then you can pass the `pool` (a `pg.pool`) to these functions:
 
-You can also pass a `pg.client` instead of a `pg.pool` to any method, since the only method we use is `.query()` and
-both `pg.pool` and `pg.client` provide it.
+```
+// promise
+const selCount = 'SELECT count(*) AS count FROM tablename'
+const row = await pgx.one(client, selCount)
+
+// callback
+const selCount = 'SELECT count(*) AS count FROM tablename'
+pgx.one(client, selCount, (err, row) => {
+  if (err) throw err
+
+  console.log(Row:', row || 'none')
+})
+```
+
+You can also pass a `pg.client` instead of a `pg.pool` to any method, since
+they both have a `.query()` method that works the same.
 
 ```js
-const pool = new pg.Pool({
-  connectionString : 'postgres://pgx@localhost/pgx',
-})
+// promise - checkout a client
+pool.connect()
+  .then((client, done) => {
+    const selCount = 'SELECT count(*) AS count FROM tablename'
+    return pgx.one(client, selCount)
+  })
+  .finally(done)
+;
 
 // callback - checkout a client
 pool.connect((err, client, done) => {
@@ -30,25 +49,14 @@ pool.connect((err, client, done) => {
 
   // one
   const selCount = 'SELECT count(*) AS count FROM tablename'
-  pgx.one(pool, selCount, (err, row) => {
+  pgx.one(client, selCount, (err, row) => {
     done()
-    if (err) throw err
+    // do something with error
+    if (err) return null
 
     console.log(Row:', row || 'none')
   })
 })
-
-// promise - checkout a client
-pool.connect()
-  .then((client, done) => {
-    const selCount = 'SELECT count(*) AS count FROM tablename'
-    return pgx.one(pool, selCount)
-  })
-  .catch(err => {
-    throw err
-  })
-  .finally(done)
-;
 
 ```
 
@@ -58,8 +66,8 @@ Note: `poc` means "pool or client" which is either a `pg.pool` or a `pg.client`.
 
 ### .query(poc, query, callback) ###
 
-Just pass it a query much as you would straight to a `pg.pool` or a `pg.client`. The `rows` is equivalent to
-`result.rows` and `result` is exacty what is given back to us by `pg`.
+Pass it a query much as you would with a `pg.pool` or a `pg.client`. The `rows` is equivalent to
+`result.rows` and `result` is exactly what is given back to us by `pg`.
 
 It is just a convenience function around the `pool.query()` and `client.query()` functions to also get the `rows` out
 in one call. That's all. Perhaps this is better named just `.query()` to reflect the `pool.query()` or `client.query()`
